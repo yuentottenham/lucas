@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lucas's Math Adventure - AI Handwrite Edition</title>
+    <title>Lucas's Math Adventure - Auto Native Handwrite</title>
     <style>
         body { 
             font-family: 'Comic Sans MS', 'Chalkboard SE', 'Microsoft JhengHei', sans-serif; 
@@ -14,14 +14,15 @@
             margin: 0;
             padding: 15px;
             overflow-x: hidden;
-            touch-action: none; /* 停用瀏覽器預設觸控行為，防止手寫時網頁亂滾動 */
+            touch-action: manipulation; /* 防止手機雙擊縮放，加快點擊反應 */
         }
 
+        /* 頂部控制列 */
         .top-control-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 650px;
+            max-width: 600px;
             margin: 0 auto 10px auto;
             background: rgba(0, 0, 0, 0.6);
             padding: 8px 15px;
@@ -35,11 +36,12 @@
         .sound-btn { background: #ff0077; }
         .reset-btn { background: #ff9900; }
 
+        /* 主容器 */
         .container { 
-            max-width: 650px; 
+            max-width: 600px; 
             margin: 0 auto; 
             background: rgba(255, 255, 255, 0.06); 
-            padding: 20px; 
+            padding: 25px 20px; 
             border-radius: 25px; 
             border: 3px solid #00f0ff;
             box-shadow: 0 0 20px #00f0ff;
@@ -47,54 +49,65 @@
         }
 
         h1 { font-size: 32px; color: #fffb00; text-shadow: 0 0 10px #fffb00; margin: 5px 0; }
-        .subtitle { font-size: 15px; color: #00f0ff; margin-bottom: 15px; }
+        .subtitle { font-size: 15px; color: #00f0ff; margin-bottom: 20px; }
 
+        /* 題目超大字體 */
         h2#questionText { 
-            font-size: 64px; color: #00ff66;
-            text-shadow: 0 0 20px rgba(0,255,102,0.8), 3px 3px 0px #000;
-            margin: 15px 0;
+            font-size: 72px; color: #00ff66;
+            text-shadow: 0 0 20px rgba(0,255,102,0.8), 4px 4px 0px #000;
+            margin: 20px 0;
         }
 
         .upload-section { 
             background: rgba(0, 0, 0, 0.5); padding: 30px; border-radius: 20px; border: 3px dashed #ff00aa; 
         }
 
+        /* 飛彈按鈕 */
         .action-btn { 
-            padding: 15px 40px; font-size: 24px; font-weight: bold; cursor: pointer; 
+            padding: 16px 45px; font-size: 26px; font-weight: bold; cursor: pointer; 
             background: linear-gradient(135deg, #00ff66 0%, #00b347 100%);
             color: #000; border: none; border-radius: 50px; 
-            box-shadow: 0 5px 15px rgba(0,255,102,0.5);
-            margin: 10px 5px;
+            box-shadow: 0 6px 20px rgba(0,255,102,0.5);
+            margin: 15px 0;
+            transition: transform 0.1s;
         }
+        .action-btn:active { transform: scale(0.95); }
         .orange-btn { background: linear-gradient(135deg, #ff9900 0%, #ff5500 100%); color: white; box-shadow: 0 5px 15px rgba(255,85,0,0.5); }
-        .grey-btn { background: #555; color: white; box-shadow: none; font-size: 18px; padding: 10px 25px; }
 
-        /* 🚀 超酷炫大容量手寫畫布板 */
-        .canvas-container {
-            margin: 15px auto;
+        /* 🎯 專為手機/平板原生手寫設計的超大直覺輸入框 */
+        .input-wrapper {
+            margin: 20px auto;
+            width: 260px;
             position: relative;
-            width: 320px;
-            height: 220px;
         }
-        #handwriteCanvas {
-            background-color: #05020c;
+        
+        input[type="text"].native-handwrite { 
+            width: 100%;
+            padding: 20px 10px; 
+            font-size: 54px; 
+            text-align: center; 
+            border-radius: 25px;
             border: 4px solid #ff00aa;
-            border-radius: 20px;
-            box-shadow: 0 0 20px rgba(255, 0, 170, 0.5);
-            cursor: crosshair;
-            display: block;
+            background-color: #0d041a;
+            color: #fffb00;
+            font-weight: bold;
+            outline: none;
+            box-shadow: 0 0 15px rgba(255, 0, 170, 0.4);
+            transition: all 0.3s;
+            box-sizing: border-box;
         }
-        .canvas-hint {
-            position: absolute;
-            top: 5px; left: 10px;
-            font-size: 13px; color: rgba(255,255,255,0.3);
-            pointer-events: none;
+        
+        /* 當點擊準備手寫時的炫麗發光特效 */
+        input[type="text"].native-handwrite:focus {
+            border-color: #00f0ff;
+            background-color: #170733;
+            box-shadow: 0 0 25px #00f0ff;
         }
 
         .game-area { display: none; }
         #feedback { font-size: 28px; font-weight: bold; margin-top: 15px; min-height: 35px; }
 
-        /* 寶箱區 */
+        /* 外星人寶箱區 */
         .gallery-section { margin-top: 25px; background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 25px; }
         .gallery-title { font-size: 18px; color: #ff00aa; margin-bottom: 10px; font-weight: bold; }
         .grid { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
@@ -112,7 +125,7 @@
         .progress-bar-container { width: 100%; background-color: #222; border-radius: 10px; margin-top: 15px; overflow: hidden; }
         .progress-bar { width: 0%; height: 10px; background: linear-gradient(90deg, #ff00aa, #00f0ff); }
 
-        /* 彈窗 */
+        /* 捕獲彈窗 */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 3, 22, 0.95);
             display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s;
@@ -137,7 +150,7 @@
 
 <div class="container">
     <h1>🚀 LUCAS 的數學太空號 🌟</h1>
-    <div class="subtitle">直接在黑色框框內用手指寫數字，寫完按發射！</div>
+    <div class="subtitle">點擊下方大框框即可手寫輸入答案，精準又方便！</div>
     
     <!-- 1. 家長上傳區 -->
     <div id="uploadArea" class="upload-section">
@@ -154,14 +167,19 @@
         
         <h2 id="questionText">計算中...</h2>
         
-        <!-- 🎨 Lucas 專屬手寫畫布板面 -->
-        <div class="canvas-container">
-            <div class="canvas-hint">在此用手指/筆寫答案 ✏️</div>
-            <canvas id="handwriteCanvas" width="320" height="220"></canvas>
+        <!-- 🎯 智慧型原生手寫觸發大框框 -->
+        <div class="input-wrapper">
+            <input type="text" 
+                   id="userAnswer" 
+                   class="native-handwrite" 
+                   placeholder="✍️ 點我手寫" 
+                   inputmode="text" 
+                   autocomplete="off" 
+                   autocorrect="off"
+                   onkeydown="if(event.key==='Enter') fireMissile()">
         </div>
         
         <div>
-            <button class="action-btn grey-btn" onclick="clearCanvas()">🧼 擦掉重寫</button>
             <button class="action-btn" onclick="fireMissile()">發射飛彈 💥</button>
         </div>
         
@@ -232,97 +250,6 @@
         gain.gain.exponentialRampToValueAtTime(0.005, startTime + duration); osc.start(startTime); osc.stop(startTime + duration);
     }
 
-    // --- 🖋️ 免輸入法！極速手寫畫布邏輯 ---
-    const canvas = document.getElementById('handwriteCanvas');
-    const ctx = canvas.getContext('2d');
-    let isDrawing = false;
-
-    // 設定畫筆樣式：粗白線，方便 AI 與人類視覺辨識
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 14;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    // 監聽滑鼠與手指觸控事件
-    canvas.addEventListener('mousedown', startDrawing);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', stopDrawing);
-    canvas.addEventListener('mouseleave', stopDrawing);
-
-    canvas.addEventListener('touchstart', (e) => { const t = e.touches[0]; startDrawing(getTouchPos(t)); e.preventDefault(); }, { passive: false });
-    canvas.addEventListener('touchmove', (e) => { const t = e.touches[0]; draw(getTouchPos(t)); e.preventDefault(); }, { passive: false });
-    canvas.addEventListener('touchend', (e) => { stopDrawing(); e.preventDefault(); }, { passive: false });
-
-    function getTouchPos(touch) {
-        const rect = canvas.getBoundingClientRect();
-        return { clientX: touch.clientX, clientY: touch.clientY };
-    }
-
-    function startDrawing(e) {
-        isDrawing = true;
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-    }
-
-    function draw(e) {
-        if (!isDrawing) return;
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        ctx.lineTo(x, y);
-        ctx.stroke();
-    }
-
-    function stopDrawing() { isDrawing = false; }
-    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-
-    // --- 🧠 雲端免費手寫數字 OCR 識別辨認引擎 ---
-    function recognizeNumber(callback) {
-        // 將 Lucas 畫的圖轉成一張縮小的黑白高對比圖片
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = 100;
-        tempCanvas.height = 70;
-        const tempCtx = tempCanvas.getContext('2d');
-        tempCtx.fillStyle = '#ffffff';
-        tempCtx.fillRect(0, 0, 100, 70);
-        tempCtx.drawImage(canvas, 10, 10, 80, 50);
-
-        const dataUrl = tempCanvas.toDataURL('image/jpeg', 0.6);
-        const base64Data = dataUrl.split(',')[1];
-
-        // 串接免費、免註冊的免費用網路 OCR API 進行辨識
-        const formData = new FormData();
-        formData.append('base64Image', 'data:image/jpeg;base64,' + base64Data);
-        formData.append('language', 'eng');
-        formData.append('isOverlayRequired', 'false');
-        formData.append('scale', 'true');
-        formData.append('OCREngine', '2'); // 引擎 2 最適合看數字
-
-        fetch('https://api.ocr.space/parse/image', {
-            method: 'POST',
-            headers: { 'apikey': 'dontsharethiskey_88' }, // 使用公開測試金鑰，非常適合教學用途
-            body: formData
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result && result.ParsedResults && result.ParsedResults.length > 0) {
-                let text = result.ParsedResults[0].ParsedText || "";
-                // 過濾掉不是數字的雜訊
-                let numStr = text.replace(/[^0-9]/g, '');
-                let parsedNum = parseInt(numStr, 10);
-                callback(parsedNum);
-            } else {
-                callback(NaN);
-            }
-        })
-        .catch(() => {
-            callback(NaN);
-        });
-    }
-
     // --- 遊戲運作邏輯 ---
     function initGallery() {
         const grid = document.getElementById('monsterGrid'); grid.innerHTML = '';
@@ -385,7 +312,15 @@
         if (currentIndex < questionBank.length) {
             document.getElementById('questionText').innerText = questionBank[currentIndex].question;
             document.getElementById('feedback').innerText = '';
-            clearCanvas();
+            
+            const inputField = document.getElementById('userAnswer');
+            inputField.value = '';
+            
+            // 🎯 核心自動對焦：下一題自動喚醒手機手寫板，Lucas 完全不需要手動點格清除
+            setTimeout(() => {
+                inputField.focus();
+            }, 250);
+
             let progress = (currentIndex / questionBank.length) * 100;
             document.getElementById('pBar').style.width = progress + "%";
         } else {
@@ -394,30 +329,27 @@
     }
 
     function fireMissile() {
-        const feedback = document.getElementById('feedback');
-        feedback.style.color = "#00f0ff";
-        feedback.innerText = "📡 太空雷達辨識中...";
+        const userAnsInput = document.getElementById('userAnswer');
+        const userAnswer = parseInt(userAnsInput.value.trim(), 10);
+
+        if (isNaN(userAnswer)) return; // 如果沒輸入或不是數字，不執行
 
         playLaserSound();
 
-        // 啟動手寫辨認
-        recognizeNumber((userAnswer) => {
-            if (isNaN(userAnswer)) {
-                feedback.style.color = "#ff3366";
-                feedback.innerText = "❓ 哎呀，雷達看不清，請用白色線條寫下清楚的數字喔！";
-                return;
-            }
+        // 稍微延遲讓發射音效完美播放
+        setTimeout(() => {
             checkAnswer(userAnswer);
-        });
+        }, 100);
     }
 
     function checkAnswer(userAnswer) {
         const correctAnswer = questionBank[currentIndex].answer;
         const feedback = document.getElementById('feedback');
+        const userAnsInput = document.getElementById('userAnswer');
 
         if (userAnswer === correctAnswer) {
             feedback.style.color = "#00ff66";
-            feedback.innerHTML = `⭕ 正確！雷達偵測答案是: ${userAnswer}！太棒了！ ✨`;
+            feedback.innerHTML = "⭕ 完全正確！Lucas 太棒了！ ✨";
             combo++;
             document.getElementById('comboCount').innerText = combo;
 
@@ -425,12 +357,13 @@
                 playCaptureSound(); triggerReward(); combo = 0; document.getElementById('comboCount').innerText = combo;
             } else {
                 playCorrectSound();
-                setTimeout(() => { currentIndex++; showQuestion(); }, 1400);
+                setTimeout(() => { currentIndex++; showQuestion(); }, 1200);
             }
         } else {
             feedback.style.color = "#ff3366";
-            feedback.innerHTML = `❌ 雷達辨識到 ${userAnswer}。答案不對喔，再擦掉算一次！`;
+            feedback.innerHTML = "❌ 哎呀，飛彈偏離軌道！再算一下，你可以的！";
             combo = 0; document.getElementById('comboCount').innerText = combo;
+            userAnsInput.select(); // 答錯時自動全選，方便 Lucas 直接手寫覆蓋答案
         }
     }
 
