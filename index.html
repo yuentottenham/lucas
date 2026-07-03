@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lucas's Math Adventure - 20 Monsters Stable Edition</title>
+    <title>Lucas's Math Adventure - AI Handwrite Edition</title>
     <style>
         body { 
             font-family: 'Comic Sans MS', 'Chalkboard SE', 'Microsoft JhengHei', sans-serif; 
@@ -12,277 +12,158 @@
             color: #ffffff;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             overflow-x: hidden;
-            /* 防止手機雙擊縮放 */
-            touch-action: manipulation;
+            touch-action: none; /* 停用瀏覽器預設觸控行為，防止手寫時網頁亂滾動 */
         }
 
-        /* 頂部控制列 */
         .top-control-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             max-width: 650px;
-            margin: 0 auto 15px auto;
+            margin: 0 auto 10px auto;
             background: rgba(0, 0, 0, 0.6);
-            padding: 10px 20px;
+            padding: 8px 15px;
             border-radius: 15px;
             border: 2px solid #00f0ff;
-            box-shadow: 0 0 10px #00f0ff;
         }
         .control-btn {
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            font-size: 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s;
+            color: white; border: none; padding: 6px 12px; font-size: 14px;
+            border-radius: 20px; cursor: pointer; font-weight: bold;
         }
-        .sound-btn { background: #ff0077; box-shadow: 0 4px 10px rgba(255,0,119,0.4); }
-        .reset-btn { background: #ff9900; box-shadow: 0 4px 10px rgba(255,153,0,0.4); }
-        .control-btn:hover { transform: scale(1.05); }
+        .sound-btn { background: #ff0077; }
+        .reset-btn { background: #ff9900; }
 
-        /* 遊戲主容器 */
         .container { 
             max-width: 650px; 
-            margin: 10px auto; 
-            background: rgba(255, 255, 255, 0.08); 
-            padding: 30px; 
-            border-radius: 30px; 
-            border: 4px solid #00f0ff;
-            box-shadow: 0 0 25px #00f0ff, inset 0 0 15px rgba(255,255,255,0.1);
+            margin: 0 auto; 
+            background: rgba(255, 255, 255, 0.06); 
+            padding: 20px; 
+            border-radius: 25px; 
+            border: 3px solid #00f0ff;
+            box-shadow: 0 0 20px #00f0ff;
             backdrop-filter: blur(10px);
         }
 
-        h1 {
-            font-size: 38px;
-            color: #fffb00;
-            text-shadow: 0 0 15px #fffb00, 3px 3px 0px #ff0077;
-            margin: 5px 0;
-        }
-        .subtitle {
-            font-size: 18px;
-            color: #00f0ff;
-            margin-bottom: 25px;
-            letter-spacing: 2px;
-        }
+        h1 { font-size: 32px; color: #fffb00; text-shadow: 0 0 10px #fffb00; margin: 5px 0; }
+        .subtitle { font-size: 15px; color: #00f0ff; margin-bottom: 15px; }
 
-        /* 題目字體（超大） */
         h2#questionText { 
-            font-size: 72px; 
-            color: #00ff66;
-            text-shadow: 0 0 25px rgba(0,255,102,0.8), 4px 4px 0px #000;
-            margin: 25px 0;
-            letter-spacing: 3px;
+            font-size: 64px; color: #00ff66;
+            text-shadow: 0 0 20px rgba(0,255,102,0.8), 3px 3px 0px #000;
+            margin: 15px 0;
         }
 
         .upload-section { 
-            background: rgba(0, 0, 0, 0.5); 
-            padding: 35px; 
-            border-radius: 20px; 
-            border: 3px dashed #ff00aa; 
+            background: rgba(0, 0, 0, 0.5); padding: 30px; border-radius: 20px; border: 3px dashed #ff00aa; 
         }
 
         .action-btn { 
-            padding: 18px 45px; 
-            font-size: 26px; 
-            font-weight: bold;
-            cursor: pointer; 
+            padding: 15px 40px; font-size: 24px; font-weight: bold; cursor: pointer; 
             background: linear-gradient(135deg, #00ff66 0%, #00b347 100%);
-            color: #000; 
-            border: none; 
-            border-radius: 50px; 
-            box-shadow: 0 6px 20px rgba(0,255,102,0.5);
-            transition: transform 0.1s;
-            -webkit-tap-highlight-color: transparent;
+            color: #000; border: none; border-radius: 50px; 
+            box-shadow: 0 5px 15px rgba(0,255,102,0.5);
+            margin: 10px 5px;
         }
-        .action-btn:active { transform: scale(0.95); }
-        .orange-btn {
-            background: linear-gradient(135deg, #ff9900 0%, #ff5500 100%);
-            color: white;
-            box-shadow: 0 6px 20px rgba(255,85,0,0.5);
-        }
+        .orange-btn { background: linear-gradient(135deg, #ff9900 0%, #ff5500 100%); color: white; box-shadow: 0 5px 15px rgba(255,85,0,0.5); }
+        .grey-btn { background: #555; color: white; box-shadow: none; font-size: 18px; padding: 10px 25px; }
 
-        /* 適合平板/手機手寫的超大輸入框 */
-        input[type="text"].handwrite-input { 
-            padding: 20px; 
-            font-size: 48px; 
-            width: 240px; 
-            text-align: center; 
-            border-radius: 25px;
-            border: 4px solid #00f0ff;
-            background-color: #ffffff;
-            color: #000000;
-            font-weight: bold;
-            margin-bottom: 25px;
-            box-shadow: 0 0 20px rgba(0,240,255,0.6);
-            outline: none;
-            transition: all 0.3s;
+        /* 🚀 超酷炫大容量手寫畫布板 */
+        .canvas-container {
+            margin: 15px auto;
+            position: relative;
+            width: 320px;
+            height: 220px;
         }
-        input[type="text"].handwrite-input:focus {
-            background-color: #ffffcc; /* 聚焦時變黃色提示可以手寫 */
-            border-color: #ff00aa;
-            box-shadow: 0 0 25px #ff00aa;
+        #handwriteCanvas {
+            background-color: #05020c;
+            border: 4px solid #ff00aa;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(255, 0, 170, 0.5);
+            cursor: crosshair;
+            display: block;
+        }
+        .canvas-hint {
+            position: absolute;
+            top: 5px; left: 10px;
+            font-size: 13px; color: rgba(255,255,255,0.3);
+            pointer-events: none;
         }
 
         .game-area { display: none; }
+        #feedback { font-size: 28px; font-weight: bold; margin-top: 15px; min-height: 35px; }
 
-        #feedback { 
-            font-size: 32px; 
-            font-weight: bold; 
-            margin-top: 20px;
-            min-height: 45px;
-        }
-
-        /* 20個外星人寶箱區 */
-        .gallery-section {
-            margin-top: 35px;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 20px;
-            border-radius: 25px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .gallery-title {
-            font-size: 22px;
-            color: #ff00aa;
-            margin-bottom: 15px;
-            text-shadow: 0 0 8px #ff00aa;
-            font-weight: bold;
-        }
-        .grid {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+        /* 寶箱區 */
+        .gallery-section { margin-top: 25px; background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 25px; }
+        .gallery-title { font-size: 18px; color: #ff00aa; margin-bottom: 10px; font-weight: bold; }
+        .grid { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
         .monster-card {
-            width: 58px;
-            height: 58px;
-            background: rgba(255,255,255,0.05);
-            border: 2px solid #444;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 50px; height: 50px; background: rgba(255,255,255,0.05);
+            border: 2px solid #444; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 28px; 
         }
         .monster-card.unlocked {
-            border-color: #fffb00;
-            background: radial-gradient(circle, rgba(255,255,0,0.2) 0%, rgba(0,0,0,0) 70%);
-            box-shadow: 0 0 12px #fffb00;
-            transform: scale(1.08) rotate(5deg);
+            border-color: #fffb00; background: radial-gradient(circle, rgba(255,255,0,0.2) 0%, rgba(0,0,0,0) 70%);
+            box-shadow: 0 0 10px #fffb00; transform: scale(1.05) rotate(3deg);
         }
         .monster-card.locked { filter: grayscale(100%) brightness(25%); }
 
-        .progress-bar-container {
-            width: 100%;
-            background-color: #222;
-            border-radius: 10px;
-            margin-top: 20px;
-            overflow: hidden;
-            border: 1px solid #444;
-        }
-        .progress-bar {
-            width: 0%;
-            height: 14px;
-            background: linear-gradient(90deg, #ff00aa, #00f0ff);
-            transition: width 0.3s;
-        }
+        .progress-bar-container { width: 100%; background-color: #222; border-radius: 10px; margin-top: 15px; overflow: hidden; }
+        .progress-bar { width: 0%; height: 10px; background: linear-gradient(90deg, #ff00aa, #00f0ff); }
 
-        /* 超巨大客製化炫彩彈窗 */
+        /* 彈窗 */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 3, 22, 0.95);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 3, 22, 0.95);
+            display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s;
         }
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
         .modal-content {
-            background: linear-gradient(135deg, #220646 0%, #4a1291 100%);
-            padding: 50px;
-            border-radius: 40px;
-            border: 5px solid #fffb00;
-            box-shadow: 0 0 50px #fffb00;
-            text-align: center;
-            max-width: 550px;
-            width: 80%;
-            transform: scale(0.7);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: linear-gradient(135deg, #220646 0%, #4a1291 100%); padding: 40px; border-radius: 40px;
+            border: 5px solid #fffb00; box-shadow: 0 0 40px #fffb00; text-align: center; width: 80%; max-width: 450px;
         }
-        .modal-overlay.active .modal-content {
-            transform: scale(1);
-        }
-        .modal-emoji {
-            font-size: 130px;
-            margin-bottom: 20px;
-            animation: bounce 1s infinite alternate;
-        }
-        .modal-title {
-            font-size: 46px;
-            color: #fffb00;
-            text-shadow: 0 0 15px #fffb00;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        .modal-text {
-            font-size: 26px;
-            color: #00f0ff;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-        @keyframes bounce {
-            from { transform: translateY(0); }
-            to { transform: translateY(-15px); }
-        }
+        .modal-emoji { font-size: 100px; margin-bottom: 15px; animation: bounce 1s infinite alternate; }
+        .modal-title { font-size: 38px; color: #fffb00; font-weight: bold; margin-bottom: 10px; }
+        .modal-text { font-size: 22px; color: #00f0ff; margin-bottom: 25px; line-height: 1.5; }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12px); } }
     </style>
 </head>
 <body>
 
-<!-- 頂部控制列 -->
 <div class="top-control-bar">
-    <div>
-        <button class="control-btn sound-btn" onclick="unlockAudio()">🎵 測試/解鎖音效</button>
-    </div>
-    <div>
-        <button class="control-btn reset-btn" onclick="resetGallery()">🔄 重新開始 (重置寶箱)</button>
-    </div>
+    <button class="control-btn sound-btn" onclick="unlockAudio()">🎵 測試音效</button>
+    <button class="control-btn reset-btn" onclick="resetGallery()">🔄 重置寶箱</button>
 </div>
 
 <div class="container">
     <h1>🚀 LUCAS 的數學太空號 🌟</h1>
-    <div class="subtitle">點擊輸入框啟用手寫，寫完按下發射捕捉外星人！</div>
+    <div class="subtitle">直接在黑色框框內用手指寫數字，寫完按發射！</div>
     
     <!-- 1. 家長上傳區 -->
     <div id="uploadArea" class="upload-section">
-        <p style="font-size: 20px; color: #ccb3ff; font-weight: bold;">請家長幫 Lucas 匯入題庫 (.csv)</p>
-        <input type="file" id="csvFile" accept=".csv" style="font-size: 18px; margin-bottom: 20px; color: #fff;"><br>
+        <p style="font-size: 18px; color: #ccb3ff; font-weight: bold;">請家長幫 Lucas 匯入題庫 (.csv)</p>
+        <input type="file" id="csvFile" accept=".csv" style="font-size: 16px; margin-bottom: 20px;"><br>
         <button class="action-btn orange-btn" onclick="loadQuestions()">啟動太空引擎 🚀</button>
     </div>
 
     <!-- 2. 遊戲主舞台 -->
     <div id="gameArea" class="game-area">
-        <div style="font-size: 22px; color: #ff00aa; font-weight: bold;">
-            連擊能量: <span id="comboCount" style="font-size: 28px; color: #fffb00;">0</span> / 3 🔥
+        <div style="font-size: 18px; color: #ff00aa; font-weight: bold;">
+            連擊能量: <span id="comboCount" style="font-size: 24px; color: #fffb00;">0</span> / 3 🔥
         </div>
         
         <h2 id="questionText">計算中...</h2>
         
-        <!-- 更改為 text 格式並調整提示，完美啟動手機內建手寫 -->
-        <input type="text" id="userAnswer" class="handwrite-input" placeholder="請手寫答案" pattern="[0-9]*" inputmode="text" autocomplete="off" onkeydown="if(event.key==='Enter') fireMissile()"><br>
-        <button class="action-btn" onclick="fireMissile()">發射飛彈 💥</button>
+        <!-- 🎨 Lucas 專屬手寫畫布板面 -->
+        <div class="canvas-container">
+            <div class="canvas-hint">在此用手指/筆寫答案 ✏️</div>
+            <canvas id="handwriteCanvas" width="320" height="220"></canvas>
+        </div>
+        
+        <div>
+            <button class="action-btn grey-btn" onclick="clearCanvas()">🧼 擦掉重寫</button>
+            <button class="action-btn" onclick="fireMissile()">發射飛彈 💥</button>
+        </div>
         
         <p id="feedback"></p>
         
@@ -291,14 +172,13 @@
         </div>
     </div>
 
-    <!-- 3. Lucas 的外星人收集寶箱 (20個) -->
+    <!-- 3. 外星人收集寶箱 -->
     <div class="gallery-section">
         <div class="gallery-title">👾 Lucas 的外星人收集寶箱 (<span id="unlockedCount">0</span>/20)</div>
         <div class="grid" id="monsterGrid"></div>
     </div>
 </div>
 
-<!-- 全螢幕超大清晰客製化彈窗 -->
 <div id="rewardModal" class="modal-overlay">
     <div class="modal-content">
         <div id="modalEmoji" class="modal-emoji">👾</div>
@@ -313,7 +193,6 @@
     let currentIndex = 0;  
     let combo = 0; 
 
-    // 20 個帥氣宇宙生物圖鑑
     const monsters = [
         { id: 1, icon: "👾", name: "波波星人" }, { id: 2, icon: "🛸", name: "發光飛碟" }, 
         { id: 3, icon: "🤖", name: "鐵皮機器人" }, { id: 4, icon: "🦖", name: "小恐龍獸" }, 
@@ -327,155 +206,169 @@
         { id: 19, icon: "🐺", name: "月全食星狼" }, { id: 20, icon: "⭐", name: "超新星精靈王" }
     ];
 
-    // --- 音效驅動引擎 ---
+    // --- 音效引擎 ---
     let audioCtx = null;
-
-    function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-    }
-
-    function unlockAudio() {
-        initAudio();
-        playCorrectSound();
-    }
-
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+    function unlockAudio() { initAudio(); playCorrectSound(); }
     function playLaserSound() {
-        initAudio(); if (!audioCtx) return;
-        const now = audioCtx.currentTime;
-
-        const osc1 = audioCtx.createOscillator();
-        const gain1 = audioCtx.createGain();
-        osc1.type = 'sawtooth';
-        osc1.frequency.setValueAtTime(1200, now);
-        osc1.frequency.exponentialRampToValueAtTime(150, now + 0.15);
-        gain1.gain.setValueAtTime(0.15, now);
-        gain1.gain.linearRampToValueAtTime(0.01, now + 0.15);
-        osc1.connect(gain1); gain1.connect(audioCtx.destination);
-        osc1.start(now); osc1.stop(now + 0.15);
-
-        const osc2 = audioCtx.createOscillator();
-        const gain2 = audioCtx.createGain();
-        osc2.type = 'triangle';
-        osc2.frequency.setValueAtTime(100, now + 0.08);
-        osc2.frequency.linearRampToValueAtTime(30, now + 0.25);
-        gain2.gain.setValueAtTime(0.25, now + 0.08);
-        gain2.gain.linearRampToValueAtTime(0.01, now + 0.25);
-        osc2.connect(gain2); gain2.connect(audioCtx.destination);
-        osc2.start(now + 0.08); osc2.stop(now + 0.25);
+        initAudio(); if (!audioCtx) return; const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(1000, now); osc.frequency.exponentialRampToValueAtTime(100, now + 0.12);
+        gain.gain.setValueAtTime(0.12, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+        osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.12);
     }
-
     function playCorrectSound() {
-        initAudio(); if (!audioCtx) return;
-        const now = audioCtx.currentTime;
-        playTone(523.25, now, 0.08, 'sine');       
-        playTone(659.25, now + 0.05, 0.08, 'sine');  
-        playTone(783.99, now + 0.10, 0.08, 'sine');  
-        playTone(1046.50, now + 0.15, 0.18, 'sine'); 
+        initAudio(); if (!audioCtx) return; const now = audioCtx.currentTime;
+        playTone(523.25, now, 0.06, 'sine'); playTone(659.25, now + 0.04, 0.06, 'sine'); playTone(783.99, now + 0.08, 0.15, 'sine');
     }
-
     function playCaptureSound() {
-        initAudio(); if (!audioCtx) return;
-        const now = audioCtx.currentTime;
-        playTone(523.25, now, 0.1, 'triangle');       
-        playTone(587.33, now + 0.1, 0.1, 'triangle'); 
-        playTone(659.25, now + 0.2, 0.1, 'triangle'); 
-        playTone(783.99, now + 0.3, 0.15, 'triangle');
-        playTone(659.25, now + 0.45, 0.1, 'triangle');
-        playTone(987.77, now + 0.55, 0.15, 'square'); 
-        playTone(1046.50, now + 0.7, 0.4, 'square');  
+        initAudio(); if (!audioCtx) return; const now = audioCtx.currentTime;
+        playTone(523.25, now, 0.08, 'triangle'); playTone(659.25, now + 0.08, 0.08, 'triangle'); playTone(987.77, now + 0.16, 0.12, 'square'); playTone(1046.50, now + 0.28, 0.3, 'square');
     }
-
     function playTone(freq, startTime, duration, type) {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, startTime);
-        gain.gain.setValueAtTime(0.12, startTime);
-        gain.gain.exponentialRampToValueAtTime(0.005, startTime + duration);
-        osc.start(startTime);
-        osc.stop(startTime + duration);
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination); osc.type = type;
+        osc.frequency.setValueAtTime(freq, startTime); gain.gain.setValueAtTime(0.1, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.005, startTime + duration); osc.start(startTime); osc.stop(startTime + duration);
     }
 
-    // --- 遊戲邏輯 ---
+    // --- 🖋️ 免輸入法！極速手寫畫布邏輯 ---
+    const canvas = document.getElementById('handwriteCanvas');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+
+    // 設定畫筆樣式：粗白線，方便 AI 與人類視覺辨識
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 14;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    // 監聽滑鼠與手指觸控事件
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseleave', stopDrawing);
+
+    canvas.addEventListener('touchstart', (e) => { const t = e.touches[0]; startDrawing(getTouchPos(t)); e.preventDefault(); }, { passive: false });
+    canvas.addEventListener('touchmove', (e) => { const t = e.touches[0]; draw(getTouchPos(t)); e.preventDefault(); }, { passive: false });
+    canvas.addEventListener('touchend', (e) => { stopDrawing(); e.preventDefault(); }, { passive: false });
+
+    function getTouchPos(touch) {
+        const rect = canvas.getBoundingClientRect();
+        return { clientX: touch.clientX, clientY: touch.clientY };
+    }
+
+    function startDrawing(e) {
+        isDrawing = true;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        ctx.lineTo(x, y);
+        ctx.stroke();
+    }
+
+    function stopDrawing() { isDrawing = false; }
+    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+    // --- 🧠 雲端免費手寫數字 OCR 識別辨認引擎 ---
+    function recognizeNumber(callback) {
+        // 將 Lucas 畫的圖轉成一張縮小的黑白高對比圖片
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = 100;
+        tempCanvas.height = 70;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.fillStyle = '#ffffff';
+        tempCtx.fillRect(0, 0, 100, 70);
+        tempCtx.drawImage(canvas, 10, 10, 80, 50);
+
+        const dataUrl = tempCanvas.toDataURL('image/jpeg', 0.6);
+        const base64Data = dataUrl.split(',')[1];
+
+        // 串接免費、免註冊的免費用網路 OCR API 進行辨識
+        const formData = new FormData();
+        formData.append('base64Image', 'data:image/jpeg;base64,' + base64Data);
+        formData.append('language', 'eng');
+        formData.append('isOverlayRequired', 'false');
+        formData.append('scale', 'true');
+        formData.append('OCREngine', '2'); // 引擎 2 最適合看數字
+
+        fetch('https://api.ocr.space/parse/image', {
+            method: 'POST',
+            headers: { 'apikey': 'dontsharethiskey_88' }, // 使用公開測試金鑰，非常適合教學用途
+            body: formData
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result && result.ParsedResults && result.ParsedResults.length > 0) {
+                let text = result.ParsedResults[0].ParsedText || "";
+                // 過濾掉不是數字的雜訊
+                let numStr = text.replace(/[^0-9]/g, '');
+                let parsedNum = parseInt(numStr, 10);
+                callback(parsedNum);
+            } else {
+                callback(NaN);
+            }
+        })
+        .catch(() => {
+            callback(NaN);
+        });
+    }
+
+    // --- 遊戲運作邏輯 ---
     function initGallery() {
-        const grid = document.getElementById('monsterGrid');
-        grid.innerHTML = '';
+        const grid = document.getElementById('monsterGrid'); grid.innerHTML = '';
         let unlockedList = JSON.parse(localStorage.getItem('lucas_monsters')) || [];
-        
         monsters.forEach(m => {
             const isUnlocked = unlockedList.includes(m.id);
             const card = document.createElement('div');
             card.className = `monster-card ${isUnlocked ? 'unlocked' : 'locked'}`;
-            card.id = `monster-${m.id}`;
-            card.innerText = m.icon || "👾";
-            grid.appendChild(card);
+            card.id = `monster-${m.id}`; card.innerText = m.icon || "👾"; grid.appendChild(card);
         });
         document.getElementById('unlockedCount').innerText = unlockedList.length;
     }
 
     function resetGallery() {
-        if (confirm("Lucas，你確定要清空寶箱，重新挑戰並收集 20 個宇宙生物嗎？")) {
-            localStorage.removeItem('lucas_monsters');
-            combo = 0;
-            document.getElementById('comboCount').innerText = combo;
-            initGallery();
+        if (confirm("Lucas，要重置寶箱重新收集 20 個宇宙生物嗎？")) {
+            localStorage.removeItem('lucas_monsters'); combo = 0;
+            document.getElementById('comboCount').innerText = combo; initGallery();
         }
     }
 
     function loadQuestions() {
-        initAudio();
-        const fileInput = document.getElementById('csvFile');
-        const file = fileInput.files[0];
-        
-        if (!file) {
-            alert("請先選擇題庫 .csv 檔案喔！");
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            parseCSV(e.target.result);
-        };
-        reader.readAsText(file, 'UTF-8');
+        initAudio(); const fileInput = document.getElementById('csvFile'); const file = fileInput.files[0];
+        if (!file) { alert("請先選擇題庫 .csv 檔案喔！"); return; }
+        const reader = new FileReader(); reader.onload = function(e) { parseCSV(e.target.result); }; reader.readAsText(file, 'UTF-8');
     }
 
     function parseCSV(text) {
-        const lines = text.split(/\r?\n/);
-        questionBank = []; 
-
-        let startIndex = 0;
+        const lines = text.split(/\r?\n/); questionBank = []; let startIndex = 0;
         if (lines.length > 0) {
             const firstLineCols = lines[0].split(',');
-            if (firstLineCols.length >= 2 && isNaN(Number(firstLineCols[1].trim()))) {
-                startIndex = 1; 
-            }
+            if (firstLineCols.length >= 2 && isNaN(Number(firstLineCols[1].trim()))) startIndex = 1;
         }
-
         for (let i = startIndex; i < lines.length; i++) {
             const line = lines[i].trim();
             if (line) {
-                const columns = line.split(','); 
+                const columns = line.split(',');
                 if (columns.length >= 2) {
-                    const q = columns[0].trim();
-                    const a = parseInt(columns[1].trim(), 10);
-                    if (q !== "" && !isNaN(a)) {
-                        questionBank.push({ question: q, answer: a });
-                    }
+                    const q = columns[0].trim(); const a = parseInt(columns[1].trim(), 10);
+                    if (q !== "" && !isNaN(a)) questionBank.push({ question: q, answer: a });
                 }
             }
         }
-
         if (questionBank.length > 0) {
             shuffleQuestions();
-            document.getElementById('uploadArea').style.display = 'none'; 
-            document.getElementById('gameArea').style.display = 'block';   
+            document.getElementById('uploadArea').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'block';
             showQuestion();
         } else {
             alert("無法讀取題庫！請檢查您的 CSV 檔案。");
@@ -484,23 +377,15 @@
 
     function shuffleQuestions() {
         for (let i = questionBank.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [questionBank[i], questionBank[j]] = [questionBank[j], questionBank[i]];
+            const j = Math.floor(Math.random() * (i + 1)); [questionBank[i], questionBank[j]] = [questionBank[j], questionBank[i]];
         }
     }
 
     function showQuestion() {
         if (currentIndex < questionBank.length) {
             document.getElementById('questionText').innerText = questionBank[currentIndex].question;
-            const inputField = document.getElementById('userAnswer');
-            inputField.value = '';
             document.getElementById('feedback').innerText = '';
-            
-            // 延遲聚焦，確保手機鍵盤/手寫板能順暢喚醒
-            setTimeout(() => {
-                inputField.focus();
-            }, 100);
-            
+            clearCanvas();
             let progress = (currentIndex / questionBank.length) * 100;
             document.getElementById('pBar').style.width = progress + "%";
         } else {
@@ -509,85 +394,65 @@
     }
 
     function fireMissile() {
-        const userAnsInput = document.getElementById('userAnswer');
-        // 全面相容手寫辨識出來的文字與數字轉換
-        const userAnswer = parseInt(userAnsInput.value.trim(), 10);
-
-        if (isNaN(userAnswer)) return;
+        const feedback = document.getElementById('feedback');
+        feedback.style.color = "#00f0ff";
+        feedback.innerText = "📡 太空雷達辨識中...";
 
         playLaserSound();
 
-        setTimeout(() => {
+        // 啟動手寫辨認
+        recognizeNumber((userAnswer) => {
+            if (isNaN(userAnswer)) {
+                feedback.style.color = "#ff3366";
+                feedback.innerText = "❓ 哎呀，雷達看不清，請用白色線條寫下清楚的數字喔！";
+                return;
+            }
             checkAnswer(userAnswer);
-        }, 120);
+        });
     }
 
     function checkAnswer(userAnswer) {
         const correctAnswer = questionBank[currentIndex].answer;
         const feedback = document.getElementById('feedback');
-        const userAnsInput = document.getElementById('userAnswer');
 
         if (userAnswer === correctAnswer) {
             feedback.style.color = "#00ff66";
-            feedback.innerHTML = "⭕ 太棒了 Lucas！完全正確！ 🌟";
+            feedback.innerHTML = `⭕ 正確！雷達偵測答案是: ${userAnswer}！太棒了！ ✨`;
             combo++;
             document.getElementById('comboCount').innerText = combo;
 
             if (combo >= 3) {
-                playCaptureSound();
-                triggerReward();
-                combo = 0;
-                document.getElementById('comboCount').innerText = combo;
+                playCaptureSound(); triggerReward(); combo = 0; document.getElementById('comboCount').innerText = combo;
             } else {
                 playCorrectSound();
-                setTimeout(() => {
-                    currentIndex++;
-                    showQuestion();
-                }, 1200);
+                setTimeout(() => { currentIndex++; showQuestion(); }, 1400);
             }
         } else {
             feedback.style.color = "#ff3366";
-            feedback.innerHTML = "❌ 哎呀，護盾受損！再仔細算一下，你可以的！";
-            combo = 0; 
-            document.getElementById('comboCount').innerText = combo;
-            userAnsInput.select();
+            feedback.innerHTML = `❌ 雷達辨識到 ${userAnswer}。答案不對喔，再擦掉算一次！`;
+            combo = 0; document.getElementById('comboCount').innerText = combo;
         }
     }
 
     function triggerReward() {
         let unlockedList = JSON.parse(localStorage.getItem('lucas_monsters')) || [];
         let lockedMonsters = monsters.filter(m => !unlockedList.includes(m.id));
-        
         const modal = document.getElementById('rewardModal');
-        const mEmoji = document.getElementById('modalEmoji');
-        const mText = document.getElementById('modalText');
+        const mEmoji = document.getElementById('modalEmoji'); const mText = document.getElementById('modalText');
         
         if (lockedMonsters.length > 0) {
             const luckyMonster = lockedMonsters[Math.floor(Math.random() * lockedMonsters.length)];
-            unlockedList.push(luckyMonster.id);
-            localStorage.setItem('lucas_monsters', JSON.stringify(unlockedList));
-            
+            unlockedList.push(luckyMonster.id); localStorage.setItem('lucas_monsters', JSON.stringify(unlockedList));
             mEmoji.innerText = luckyMonster.icon;
-            mText.innerHTML = `太震撼了！Lucas 連對 3 題！<br>成功捕捉到全新宇宙生物：<br><span style="color:#fffb00; font-size:34px;">【${luckyMonster.name}】</span>！<br>已放入你的太空寶箱囉！`;
-            
-            setTimeout(() => {
-                modal.classList.add('active');
-                initGallery();
-            }, 200);
+            mText.innerHTML = `太震撼了！Lucas 連對 3 題！<br>成功捕捉到全新宇宙生物：<br><span style="color:#fffb00; font-size:30px;">【${luckyMonster.name}】</span>！`;
+            setTimeout(() => { modal.classList.add('active'); initGallery(); }, 200);
         } else {
-            mEmoji.innerText = "👑";
-            mText.innerHTML = `終極大滿貫，Lucas！<br>你已經成功集滿全宇宙<br>所有 20 個稀有生物圖鑑了！`;
-            setTimeout(() => {
-                modal.classList.add('active');
-            }, 200);
+            mEmoji.innerText = "👑"; mText.innerHTML = `終極大滿貫，Lucas！<br>你已集滿全宇宙所有 20 個生物了！`;
+            setTimeout(() => { modal.classList.add('active'); }, 200);
         }
     }
 
-    function closeModal() {
-        document.getElementById('rewardModal').classList.remove('active');
-        currentIndex++;
-        showQuestion();
-    }
+    function closeModal() { document.getElementById('rewardModal').classList.remove('active'); currentIndex++; showQuestion(); }
 
     initGallery();
 </script>
