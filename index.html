@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lucas's Math Adventure - 20 Monsters Stable Edition</title>
     <style>
         body { 
@@ -14,6 +14,8 @@
             margin: 0;
             padding: 20px;
             overflow-x: hidden;
+            /* 防止手機雙擊縮放 */
+            touch-action: manipulation;
         }
 
         /* 頂部控制列 */
@@ -95,6 +97,7 @@
             border-radius: 50px; 
             box-shadow: 0 6px 20px rgba(0,255,102,0.5);
             transition: transform 0.1s;
+            -webkit-tap-highlight-color: transparent;
         }
         .action-btn:active { transform: scale(0.95); }
         .orange-btn {
@@ -103,18 +106,26 @@
             box-shadow: 0 6px 20px rgba(255,85,0,0.5);
         }
 
-        input[type="number"] { 
-            padding: 15px; 
-            font-size: 38px; 
-            width: 180px; 
+        /* 適合平板/手機手寫的超大輸入框 */
+        input[type="text"].handwrite-input { 
+            padding: 20px; 
+            font-size: 48px; 
+            width: 240px; 
             text-align: center; 
-            border-radius: 20px;
+            border-radius: 25px;
             border: 4px solid #00f0ff;
-            background-color: #fff;
-            color: #000;
+            background-color: #ffffff;
+            color: #000000;
             font-weight: bold;
             margin-bottom: 25px;
-            box-shadow: 0 0 15px rgba(0,240,255,0.4);
+            box-shadow: 0 0 20px rgba(0,240,255,0.6);
+            outline: none;
+            transition: all 0.3s;
+        }
+        input[type="text"].handwrite-input:focus {
+            background-color: #ffffcc; /* 聚焦時變黃色提示可以手寫 */
+            border-color: #ff00aa;
+            box-shadow: 0 0 25px #ff00aa;
         }
 
         .game-area { display: none; }
@@ -252,7 +263,7 @@
 
 <div class="container">
     <h1>🚀 LUCAS 的數學太空號 🌟</h1>
-    <div class="subtitle">回答正確問題，發射飛彈捕捉神祕外星生物！</div>
+    <div class="subtitle">點擊輸入框啟用手寫，寫完按下發射捕捉外星人！</div>
     
     <!-- 1. 家長上傳區 -->
     <div id="uploadArea" class="upload-section">
@@ -269,8 +280,8 @@
         
         <h2 id="questionText">計算中...</h2>
         
-        <!-- 完美支援滑鼠點擊與鍵盤 Enter 鍵發射 -->
-        <input type="number" id="userAnswer" placeholder="?" autofocus onkeydown="if(event.key==='Enter') fireMissile()"><br>
+        <!-- 更改為 text 格式並調整提示，完美啟動手機內建手寫 -->
+        <input type="text" id="userAnswer" class="handwrite-input" placeholder="請手寫答案" pattern="[0-9]*" inputmode="text" autocomplete="off" onkeydown="if(event.key==='Enter') fireMissile()"><br>
         <button class="action-btn" onclick="fireMissile()">發射飛彈 💥</button>
         
         <p id="feedback"></p>
@@ -312,7 +323,7 @@
         { id: 11, icon: "🦊", name: "彗星火狐" }, { id: 12, icon: "🐸", name: "四維旅行蛙" },
         { id: 13, icon: "🐱", name: "喵咪太空長" }, { id: 14, icon: "🐼", name: "功夫星熊貓" },
         { id: 15, icon: "🦇", name: "黑洞夜蝙蝠" }, { id: 16, icon: "🦉", name: "預言機械鴞" },
-        { id: 17, icon: "Scorpion", icon:"🦂", name: "天蠍座晶蠍" }, { id: 18, icon: "🦀", name: "巨蟹座機甲" },
+        { id: 17, icon: "🦂", name: "天蠍座晶蠍" }, { id: 18, icon: "🦀", name: "巨蟹座機甲" },
         { id: 19, icon: "🐺", name: "月全食星狼" }, { id: 20, icon: "⭐", name: "超新星精靈王" }
     ];
 
@@ -333,7 +344,6 @@
         playCorrectSound();
     }
 
-    // 1. 【飛彈發射聲】
     function playLaserSound() {
         initAudio(); if (!audioCtx) return;
         const now = audioCtx.currentTime;
@@ -359,7 +369,6 @@
         osc2.start(now + 0.08); osc2.stop(now + 0.25);
     }
 
-    // 2. 【答對達標聲】
     function playCorrectSound() {
         initAudio(); if (!audioCtx) return;
         const now = audioCtx.currentTime;
@@ -369,7 +378,6 @@
         playTone(1046.50, now + 0.15, 0.18, 'sine'); 
     }
 
-    // 3. 【捕捉成功音樂】
     function playCaptureSound() {
         initAudio(); if (!audioCtx) return;
         const now = audioCtx.currentTime;
@@ -438,18 +446,15 @@
         reader.readAsText(file, 'UTF-8');
     }
 
-    // 重大修復：強化 CSV 解析引擎，防堵換行符號與空白
     function parseCSV(text) {
-        // 全面清除斷行格式落差，依行拆分
         const lines = text.split(/\r?\n/);
         questionBank = []; 
 
-        // 自動判斷第一行是不是標題列 (文字 vs 數字)
         let startIndex = 0;
         if (lines.length > 0) {
             const firstLineCols = lines[0].split(',');
             if (firstLineCols.length >= 2 && isNaN(Number(firstLineCols[1].trim()))) {
-                startIndex = 1; // 第一行是「Question,Answer」這類的文字標題，從第二行開始讀
+                startIndex = 1; 
             }
         }
 
@@ -460,7 +465,6 @@
                 if (columns.length >= 2) {
                     const q = columns[0].trim();
                     const a = parseInt(columns[1].trim(), 10);
-                    // 確保題目不為空且答案確實是數字才塞入題庫
                     if (q !== "" && !isNaN(a)) {
                         questionBank.push({ question: q, answer: a });
                     }
@@ -474,7 +478,7 @@
             document.getElementById('gameArea').style.display = 'block';   
             showQuestion();
         } else {
-            alert("無法讀取題庫！請檢查您的 CSV 檔案，確認左邊是題目、右邊是純數字答案喔！");
+            alert("無法讀取題庫！請檢查您的 CSV 檔案。");
         }
     }
 
@@ -488,9 +492,14 @@
     function showQuestion() {
         if (currentIndex < questionBank.length) {
             document.getElementById('questionText').innerText = questionBank[currentIndex].question;
-            document.getElementById('userAnswer').value = '';
+            const inputField = document.getElementById('userAnswer');
+            inputField.value = '';
             document.getElementById('feedback').innerText = '';
-            document.getElementById('userAnswer').focus();
+            
+            // 延遲聚焦，確保手機鍵盤/手寫板能順暢喚醒
+            setTimeout(() => {
+                inputField.focus();
+            }, 100);
             
             let progress = (currentIndex / questionBank.length) * 100;
             document.getElementById('pBar').style.width = progress + "%";
@@ -501,11 +510,11 @@
 
     function fireMissile() {
         const userAnsInput = document.getElementById('userAnswer');
-        const userAnswer = parseInt(userAnsInput.value, 10);
+        // 全面相容手寫辨識出來的文字與數字轉換
+        const userAnswer = parseInt(userAnsInput.value.trim(), 10);
 
         if (isNaN(userAnswer)) return;
 
-        // 播放飛彈發射聲
         playLaserSound();
 
         setTimeout(() => {
